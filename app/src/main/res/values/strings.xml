@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Broken Server</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_discovery_setup">DiscoverySetup</string>
+</resources>
