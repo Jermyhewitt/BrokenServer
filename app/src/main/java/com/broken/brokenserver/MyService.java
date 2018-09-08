@@ -1,5 +1,6 @@
 package com.broken.brokenserver;
 
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -9,11 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,52 +22,46 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Handler;
 
-public class DiscoverySetup extends AppCompatActivity {
-
+public class MyService extends Service {
+    public MyService() {
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_discovery_setup);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+    public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         bluesOn();
+        return super.onStartCommand(intent, flags, startId);
 
     }
 
     BluetoothAdapter blues;
     ArrayAdapter devices;
     public void bluesOn() {
-        TextView textView = (TextView) findViewById(R.id.textView2);
+
         blues = BluetoothAdapter.getDefaultAdapter();
         if (blues == null) {
 
-            textView.setText("Started the fuck over");
+            Log.w("Service","Started the fuck over");
 
         }
 
         if (!blues.isEnabled()) {
-            textView.setText("Not Enabled");
+
             blues.enable();
-            textView.setText(textView.getText() + "\n Now Enabled");
-            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 1);
+
         }
-        Log.w("above bonded","Bonding get");
-        Log.w("UUID",UUID.randomUUID().toString());
+        Log.w("above bonded", "Bonding get");
+        Log.w("UUID", UUID.randomUUID().toString());
         Log.w("created UUID",new UUID(123456,56789).toString());
         Set<BluetoothDevice> pairedDevices = blues.getBondedDevices();
         if (pairedDevices.size() > 0) {
@@ -79,14 +70,7 @@ public class DiscoverySetup extends AppCompatActivity {
                 pairs.add(dev.getName() + "\nand the address is " + dev.getAddress());
             }
             devices = new ArrayAdapter(this, R.layout.list, pairs);
-            ListView placeholder = (ListView) findViewById(R.id.listView);
-            placeholder.setAdapter(devices);
-            placeholder.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                }
-            });
 
             Log.w("discovery", "Started search...........");
             blues.startDiscovery();
@@ -172,7 +156,10 @@ public class DiscoverySetup extends AppCompatActivity {
                     String message = reader.readLine();
                     if (message.startsWith("CALL"))
                     {
-                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse(message.replace("CALL", "tel")));
+                        message.replace("#","6666");
+                        Log.w("message sent server", message.replace("#","6666"));
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse(message.replace("CALL", "tel").replace("#","%23")));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         try
                         {
                             startActivity(intent);
@@ -183,6 +170,12 @@ public class DiscoverySetup extends AppCompatActivity {
                         {
                             Log.e("error", "could not call" + exe.toString());
                         }
+
+                    }
+
+                    if (message.startsWith("CALL:111"))
+                    {
+
 
                     }
 
@@ -207,27 +200,6 @@ public class DiscoverySetup extends AppCompatActivity {
 
     }
 
-    public void manageConnection(BluetoothSocket socket)
-    {
-
-    }
-
-
-
-
-
-
-
-
-       /* public void onActivityResult(int requestCode, int resultCode,Intent data )
-        {
-            TextView view=(TextView) findViewById(R.id.textView2);
-            view.setText("Result received: "+resultCode+ "request"+requestCode);
-        }*/
 
 
 }
-
-
-
-

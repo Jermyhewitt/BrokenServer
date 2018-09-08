@@ -45,17 +45,18 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
-        Log.w("Status","the activity has started");
+        Log.w("Status", "the activity has started");
         state = 1;
-
-        new giveData().execute("just");
+        Intent intent= new Intent(this,MyService.class);
+        startService(intent);
+        //new giveData().execute("just");
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        return true;        
     }
 
     @Override
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity
             super.onProgressUpdate(values);
             if(values[0].contains("CALL"))
             {
+                text.setText( values[0].replace("CALL","tel"));
                 Intent intent= new Intent(Intent.ACTION_CALL,Uri.parse(values[0].replace("CALL","tel")));
                 try
                 {
